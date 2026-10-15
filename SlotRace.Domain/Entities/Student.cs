@@ -1,5 +1,3 @@
-using SlotRace.Domain.Enums;
-
 namespace SlotRace.Domain.Entities;
 
 public class Student

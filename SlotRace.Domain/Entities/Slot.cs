@@ -1,4 +1,3 @@
-using SlotRace.Domain.Entities;
 namespace SlotRace.Domain.Entities;
 public class Slot
 {

@@ -38,7 +38,7 @@
 | repository ב-GitHub (`Ruth-Weingarten/SlotRace`, Public) ו-push | קיים ✓ (16.10.2026) |
 | כל השאר (Services, DTOs, JWT, Controllers, Middleware, NLog, Seed, בדיקות, README, קליינט, Render) | **עוד לא** |
 
-**ממצאים קטנים בקוד הקיים (יטופלו ב-T7):**
+**ממצאים קטנים בקוד הקיים (ארבעת הראשונים טופלו ב-T7, 16.10.2026):**
 - `SlotRepository.cs`: `using System.Reflection.Metadata.Ecma335;` לא בשימוש.
 - `Slot.cs`: `using SlotRace.Domain.Entities;` מיותר, כי הקובץ כבר נמצא ב-namespace הזה.
 - `Student.cs`: `using SlotRace.Domain.Enums;` לא בשימוש.
@@ -138,7 +138,7 @@ API ──► Application ──► Domain
 ### T1–T6 `[x]`
 Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`, ממשקים, repositories (פירוט בגרסה 1).
 
-### T7 – ניקוי הקוד הקיים `[ ]`
+### T7 – ניקוי הקוד הקיים `[x]`
 מחיקת ה-`using`-ים שלא בשימוש ושארית ה-`<Folder>` (ראו "ממצאים"). אין שינוי בהתנהגות.
 **למה:** כל שורה בפרויקט צריכה להיות שורה שאפשר להסביר.
 

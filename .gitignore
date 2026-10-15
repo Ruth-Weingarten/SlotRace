@@ -1,0 +1,39 @@
+# ===== .NET build output =====
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ll]og/
+[Ll]ogs/
+
+# ===== Visual Studio / Rider / VS Code =====
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userprefs
+*.rsuser
+
+# ===== NuGet =====
+*.nupkg
+packages/
+project.lock.json
+project.fragment.lock.json
+
+# ===== Test results =====
+[Tt]est[Rr]esult*/
+*.trx
+coverage*/
+
+# ===== Secrets / local config (never commit) =====
+*.env
+.env*
+appsettings.*.local.json
+secrets.json
+
+# ===== OS =====
+Thumbs.db
+.DS_Store

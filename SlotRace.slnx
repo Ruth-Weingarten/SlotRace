@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SlotRace.API/SlotRace.API.csproj" />
+  <Project Path="SlotRace.Application/SlotRace.Application.csproj" />
+  <Project Path="SlotRace.Domain/SlotRace.Domain.csproj" />
+  <Project Path="SlotRace.Infrastructure/SlotRace.Infrastructure.csproj" />
+</Solution>

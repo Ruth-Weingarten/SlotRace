@@ -152,7 +152,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 **למה:** כשל צפוי (לא נמצא, תפוס, אין הרשאה) הוא לא "חריגה". הוא תוצאה רגילה של העסק, ולכן מוחזר כערך. חריגות נשארות למקרים לא צפויים, ואותם מטפל ה-`ExceptionMiddleware`.
 
-### T9 – הגדרות (Configuration ו-IOptions) `[ ]`
+### T9 – הגדרות (Configuration ו-IOptions) `[x]`
 - **Application/Common/Options:** `JwtOptions` (`Issuer`, `Audience`, `Key`, `ExpiryMinutes`), `RegistrationOptions` (`TeacherCode`). **API:** `CorsOptions` (`AllowedOrigins`).
 - **`appsettings.json`:** הגדרות לא סודיות בלבד: `Jwt:Issuer`, `Jwt:Audience`, `Jwt:ExpiryMinutes`, `Cors:AllowedOrigins`.
 - **`appsettings.Development.json`:** רמות לוג מפורטות יותר, ו-origin מקומי של הקליינט.

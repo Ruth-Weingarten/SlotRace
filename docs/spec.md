@@ -142,7 +142,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 מחיקת ה-`using`-ים שלא בשימוש ושארית ה-`<Folder>` (ראו "ממצאים"). אין שינוי בהתנהגות.
 **למה:** כל שורה בפרויקט צריכה להיות שורה שאפשר להסביר.
 
-### T8 – `ServiceResult` וחריגת ההתנגשות `[ ]`
+### T8 – `ServiceResult` וחריגת ההתנגשות `[x]`
 **Application/Common:**
 - `enum ErrorType`: `None`, `Validation`, `Unauthorized`, `Forbidden`, `NotFound`, `Conflict`.
 - `ServiceResult<T>`: `IsSuccess`, `Value`, `Error`, `Message`, ו-`Ok(value)` / `Fail(error, message)` סטטיים. בנוסף `ServiceResult` בלי `T`, לפעולות שלא מחזירות ערך, למשל מחיקה.

@@ -162,7 +162,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 **למה IOptions:** השירות מקבל אובייקט מוקלד במקום מחרוזות כמו `config["Jwt:Key"]`. כך שגיאת כתיב בשם הגדרה מתגלה במקום אחד, וקל לדמות את ההגדרות בבדיקות.
 **קריטריון סיום:** אין סוד באף קובץ ב-repo (בודקים עם `git grep`).
 
-### T10 – DTOs `[ ]`
+### T10 – DTOs `[x]`
 **Application/DTOs**, מחולק לתיקיות:
 - **Auth:** `RegisterRequest` (`FullName` [Required, MaxLength 100], `Email` [Required, EmailAddress], `Password` [Required, MinLength 8], `TeacherCode?`), `LoginRequest`, `AuthResponse` (`Token`, `ExpiresAtUtc`, `FullName`, `Role`).
 - **Slots:** `CreateSlotRequest` / `UpdateSlotRequest` (`StartTimeUtc`, `EndTimeUtc` [Required]), `SlotQuery` (`TeacherId?`, `OnlyFree`, `FromUtc?`, `ToUtc?`, `Page` [Range 1..], `PageSize` [Range 1..50], `SortDesc`), `BookSlotRequest` (`StudentId` [Range 1..]), `SlotDto` (`Id`, `TeacherId`, `TeacherName`, `StartTimeUtc`, `EndTimeUtc`, `IsBooked`, `BookedByMe`, `StudentName?`).
@@ -170,6 +170,12 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 **חלוקת הולידציה (דרישה 2):** Data Annotations בודקות **צורה**: שדה חובה, אורך, טווח. ולידציה **עסקית**, שתלויה במצב הנתונים (הסלוט בעבר, תפוס, חופף), יושבת בשירות ולא ב-Controller.
 `PasswordHash` לא מופיע באף DTO.
+
+**החלטות שהתקבלו ב-T10:**
+- כל ה-DTOs הם `class` עם `get; set;` (לא `record`), כדי שיתאימו ל-model binding ול-AutoMapper.
+- `StartTimeUtc` / `EndTimeUtc` בבקשות הסלוט הם `DateTime?`, כי `[Required]` על `DateTime` רגיל לא תופס שדה חסר.
+- `AuthResponse.Role` הוא ה-enum `Role` מ-Domain (ולא `string`).
+- תוספות: `CreateStudentRequest.FullName` [Required, MaxLength 100], `LinkStudentRequest.JoinCode` [Required, StringLength 8, MinimumLength 8], `PageSize` ברירת מחדל 10, `Page` ברירת מחדל 1.
 
 ### T11 – AutoMapper `[ ]`
 חבילה ב-`Application`, ו-`MappingProfile`:
@@ -286,6 +292,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `API/Extensions/ServiceResultExtensions.ToActionResult()`: מתרגם `ErrorType` ל-400, 401, 403, 404 או 409, בגוף אחיד.
 - `[ProducesResponseType]` לכל סטטוס, כדי ש-Swagger יתעד הכול.
 - **ModelState:** `[ApiController]` מחזיר 400 אוטומטית כשהולידציה נכשלת. מגדירים `InvalidModelStateResponseFactory`, כך שגם שגיאת ולידציה תחזור באותו מבנה JSON של שאר השגיאות.
+- **enum כמחרוזת ב-JSON:** ב-`Program.cs` מוסיפים `JsonStringEnumConverter` ל-`AddControllers().AddJsonOptions(...)`, כדי ש-`AuthResponse.Role` יחזור כ-`"Teacher"` ולא כ-`1` (החלטה מ-T10).
 - **ה-Controller "רזה":** אין בו לוגיקה עסקית ואין בו `DbContext`. רק קבלת הבקשה, קריאה לשירות ותרגום התוצאה.
 
 ### T20 – Middleware `[ ]`

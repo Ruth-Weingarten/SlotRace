@@ -4,6 +4,7 @@ using SlotRace.Application.Interfaces;
 using SlotRace.Infrastructure.Repositories;
 using SlotRace.Application.Common.Options;
 using SlotRace.API.Options;
+using SlotRace.Application.Mapping;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -24,6 +25,13 @@ builder.Services.Configure<CorsOptions>(builder.Configuration.GetSection(CorsOpt
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
+
+// AutoMapper: רישום ה-Profile, ו-IMapper יוזרק לשירותים
+builder.Services.AddAutoMapper(c =>
+{
+    c.AddProfile<MappingProfile>();
+});
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

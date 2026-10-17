@@ -177,14 +177,20 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `AuthResponse.Role` הוא ה-enum `Role` מ-Domain (ולא `string`).
 - תוספות: `CreateStudentRequest.FullName` [Required, MaxLength 100], `LinkStudentRequest.JoinCode` [Required, StringLength 8, MinimumLength 8], `PageSize` ברירת מחדל 10, `Page` ברירת מחדל 1.
 
-### T11 – AutoMapper `[ ]`
+### T11 – AutoMapper `[x]`
 חבילה ב-`Application`, ו-`MappingProfile`:
 - `Slot` → `SlotDto` (`TeacherName` מתוך `Teacher.FullName`, `IsBooked` = `BookedByParentId != null`).
 - `Student` → `StudentDto`.
 - `CreateSlotRequest` → `Slot`, `CreateStudentRequest` → `Student`.
 
 `BookedByMe` ו-`StudentName` לא נקבעים במיפוי, כי הם תלויים במשתמשת המחוברת. השירות קובע אותם אחרי המיפוי.
-רישום ב-`Program.cs`. **לבדוק לפני ההתקנה:** ראו החלטה פתוחה 6.
+רישום ב-`Program.cs`: `AddAutoMapper(c => c.AddProfile<MappingProfile>())`, כמו בכיתה.
+
+**החלטות שהתקבלו ב-T11:**
+- `AutoMapper` **16.2.0** בלי מפתח רישיון, כמו בפרויקט הכיתה (Clinic). החבילה מותקנת רק ב-Application.
+- `JoinCode` ו-`ParentsCount` ב-`StudentDto` מסומנים `Ignore` (secure by default). השירות ממלא אותם רק למחנכת.
+- בלי `ReverseMap`: ממפים רק בכיוונים שצריך.
+- `UpdateSlotRequest` **לא ממופה**. ב-T16 השירות מעתיק את שני הזמנים ביד.
 
 ### שלב ב – משתמשות והרשאות
 
@@ -245,7 +251,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **Create:** רק המחנכת עצמה (`TeacherId` מגיע מה-token). כללים: הסיום אחרי ההתחלה; ההתחלה בעתיד; הזמנים ב-UTC (`DateTimeKind.Utc`), אחרת Validation; אין חפיפה עם סלוט אחר שלה (Conflict).
 - **GetPaged:** `pageSize` מוגבל ל-50. מחנכת בלי `teacherId` רואה את הסלוטים שלה. מיפוי ל-`SlotDto` + `BookedByMe` + `StudentName` לפי כללי הפרטיות.
 - **GetById:** NotFound אם לא קיים.
-- **Update:** רק בעלת הסלוט (Forbidden); סלוט תפוס לא משתנה (Conflict); אותם כללי זמנים וחפיפה.
+- **Update:** מעתיקים את הזמנים ביד (`slot.StartTimeUtc = request.StartTimeUtc!.Value`), בלי AutoMapper (החלטה מ-T11). רק בעלת הסלוט (Forbidden); סלוט תפוס לא משתנה (Conflict); אותם כללי זמנים וחפיפה.
 - **Delete:** רק בעלת הסלוט; סלוט תפוס לא נמחק (Conflict).
 - **CancelBooking:** רק ההורה שהזמינה (Forbidden); סלוט שעבר לא מתבטל (Validation); מאפסים `BookedByParentId` ו-`StudentId`; `SlotConflictException` מחזירה Conflict.
 
@@ -419,7 +425,7 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 ## החלטות פתוחות
 
 5. **מסד הנתונים לבדיקת שני ה-DbContext:** **ההמלצה: SQLite in-memory** (חבילה `Microsoft.EntityFrameworkCore.Sqlite` בפרויקט הבדיקות). הוא מהיר ולא צריך Docker, ו-concurrency token מסוג Guid עובד בו כמו ב-PostgreSQL. החלופה היא PostgreSQL אמיתי ב-Docker: נאמן יותר, אבל הבדיקה תיכשל כשהקונטיינר כבוי.
-6. **גרסת AutoMapper:** לפי מה שידוע לי, הגרסאות החדשות של AutoMapper עברו לרישיון מסחרי שדורש מפתח. **לא בטוחה בפרטים.** כדאי לבדוק באיזו גרסה השתמשתן בכיתה, ולבדוק את הרישיון בזמן ההתקנה.
+6. ~~**גרסת AutoMapper**~~ **נסגרה ב-T11:** 16.2.0 בלי מפתח, כמו בכיתה. מגרסה 15 יש רישיון כפול, והגרסה החינמית (Community) כוללת שימוש לימודי. בלי מפתח הספרייה עובדת, ורק מופיעה הודעה בלוג.
 7. **Swagger ב-.NET 10:** כרגע בפרויקט יש רק `AddOpenApi` המובנה, שמייצר את המסמך אבל לא את המסך. המורה דורשת "Swagger פעיל". **ההמלצה: Swashbuckle (Swagger UI).** לבדוק בזמן ההתקנה גרסה שתואמת ל-.NET 10, כי הגדרת ה-Bearer השתנתה בין הגרסאות. בנוסף צריך להחליט אם Swagger פעיל גם ב-Render. ההמלצה: כן, כדי שאפשר יהיה לבדוק את השרת.
 8. **`/booking` ביחיד:** ההסבר נמצא בטבלת נקודות הקצה. אם המורה מקפידה על רבים בכל מקום, החלופה היא `/api/slots/{id}/bookings`.
 9. **תאריך ההגשה החדש:** לא ידוע.

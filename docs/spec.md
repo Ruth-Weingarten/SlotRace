@@ -194,11 +194,16 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ב – משתמשות והרשאות
 
-### T12 – הצפנת סיסמאות ויצירת token (מאחורי ממשקים) `[ ]`
+### T12 – הצפנת סיסמאות ויצירת token (מאחורי ממשקים) `[x]`
 - **Application/Interfaces:** `IPasswordHasher` (`Hash`, `Verify`), `IJwtTokenGenerator` (`Generate(User) → (token, expiresAtUtc)`).
 - **Infrastructure/Security:** `BCryptPasswordHasher` (חבילה `BCrypt.Net-Next`), `JwtTokenGenerator` (חבילה `System.IdentityModel.Tokens.Jwt`, מקבל `IOptions<JwtOptions>`). Claims: `NameIdentifier` (מזהה), `Email`, `Role`, `Name`.
 
 **למה מאחורי ממשק:** כך `Application` נשארת בלי חבילות טכניות, ובבדיקות אפשר לדמות את שתי הפעולות עם Moq.
+
+**החלטות שהתקבלו ב-T12:**
+- במקום `System.IdentityModel.Tokens.Jwt` (ש-Microsoft מגדירה כ-legacy) משתמשים ב-`Microsoft.IdentityModel.JsonWebTokens` 8.23.0 (`JsonWebTokenHandler.CreateToken`). `BCrypt.Net-Next` 4.2.0.
+- `JwtTokenGenerator` מקבל `TimeProvider`, ולכן הרישום `AddSingleton(TimeProvider.System)` הוקדם מ-T16 ל-T12. גם `IPasswordHasher` ו-`IJwtTokenGenerator` נרשמים כבר ב-T12 (Scoped).
+- `Jwt:Key` ב-User Secrets חייב להיות באורך 32 תווים לפחות (דרישה של HmacSha256).
 
 ### T13 – `AuthService` `[ ]`
 `IAuthService` ב-`Application/Interfaces`, ו-`AuthService` ב-`Application/Services`.

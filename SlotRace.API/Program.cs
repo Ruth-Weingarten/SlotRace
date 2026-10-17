@@ -5,6 +5,7 @@ using SlotRace.Infrastructure.Repositories;
 using SlotRace.Application.Common.Options;
 using SlotRace.API.Options;
 using SlotRace.Application.Mapping;
+using SlotRace.Infrastructure.Security;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,6 +26,13 @@ builder.Services.Configure<CorsOptions>(builder.Configuration.GetSection(CorsOpt
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
+
+// אבטחה: כל ממשק מ-Application מקבל את המימוש שלו מ-Infrastructure
+builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
+builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+// שעון המערכת. Singleton כי אין לו מצב. בבדיקות מחליפים אותו בשעון מזויף
+builder.Services.AddSingleton(TimeProvider.System);
 
 // AutoMapper: רישום ה-Profile, ו-IMapper יוזרק לשירותים
 builder.Services.AddAutoMapper(c =>

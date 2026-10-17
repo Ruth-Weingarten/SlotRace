@@ -205,7 +205,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `JwtTokenGenerator` מקבל `TimeProvider`, ולכן הרישום `AddSingleton(TimeProvider.System)` הוקדם מ-T16 ל-T12. גם `IPasswordHasher` ו-`IJwtTokenGenerator` נרשמים כבר ב-T12 (Scoped).
 - `Jwt:Key` ב-User Secrets חייב להיות באורך 32 תווים לפחות (דרישה של HmacSha256).
 
-### T13 – `AuthService` `[ ]`
+### T13 – `AuthService` `[x]`
 `IAuthService` ב-`Application/Interfaces`, ו-`AuthService` ב-`Application/Services`.
 **חוקים:**
 - אימייל מנורמל (Trim ואותיות קטנות) לפני בדיקה ושמירה.
@@ -213,6 +213,12 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `TeacherCode` ריק: `Parent`. קוד נכון: `Teacher`. קוד שגוי: Validation.
 - התחברות שגויה: Unauthorized, **עם אותה הודעה** לאימייל שגוי ולסיסמה שגויה, כדי לא לגלות אילו אימיילים רשומים.
 - לא לרשום ללוג סיסמה, token או את גוף הבקשה.
+
+**החלטות שהתקבלו ב-T13:**
+- `Microsoft.Extensions.Logging.Abstractions` ו-`Microsoft.Extensions.Options` (10.0.0) נוספו **במפורש** ל-Application, במקום להגיע בעקיפין דרך AutoMapper. אלה חבילות ממשקים בלבד, בלי HTTP ובלי EF.
+- סדר ההרשמה: נרמול → קוד מורה (בלי מסד) → אימייל קיים → hash ושמירה → לוג → token. ההרשמה מחזירה token.
+- מקרה קצה ידוע: שתי הרשמות במקביל עם אותו אימייל. האינדקס הייחודי מונע כפילות, והשנייה מחזירה 500 (לא 409). הוחלט להשאיר כך.
+- לא נוספו חוקים מעבר לאפיון. הרחבות אפשריות לכיתה: נעילה אחרי ניסיונות כושלים, אישור אימייל, refresh token.
 
 ### T14 – אימות, הרשאות, Swagger ו-CORS ב-`Program.cs` `[ ]`
 - `AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...)` עם `TokenValidationParameters`: Issuer, Audience, Key, Lifetime. חבילה `Microsoft.AspNetCore.Authentication.JwtBearer` ב-API.

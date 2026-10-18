@@ -339,7 +339,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ד – שכבת ה-API
 
-### T19 – Controllers `[ ]`
+### T19 – Controllers `[x]`
 `AuthController`, `SlotsController`, `StudentsController`, `StudentLinksController`.
 - `[ApiController]`, `[Route("api/[controller]")]`, `[Authorize]` / `[Authorize(Roles = "Teacher")]`.
 - `[FromBody]`, `[FromQuery]` (`SlotQuery`) ו-`[FromRoute]` (`id`) במפורש.
@@ -350,6 +350,13 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **ModelState:** `[ApiController]` מחזיר 400 אוטומטית כשהולידציה נכשלת. מגדירים `InvalidModelStateResponseFactory`, כך שגם שגיאת ולידציה תחזור באותו מבנה JSON של שאר השגיאות.
 - **enum כמחרוזת ב-JSON:** ב-`Program.cs` מוסיפים `JsonStringEnumConverter` ל-`AddControllers().AddJsonOptions(...)`, כדי ש-`AuthResponse.Role` יחזור כ-`"Teacher"` ולא כ-`1` (החלטה מ-T10).
 - **ה-Controller "רזה":** אין בו לוגיקה עסקית ואין בו `DbContext`. רק קבלת הבקשה, קריאה לשירות ותרגום התוצאה.
+
+**החלטות שהתקבלו ב-T19:**
+- כתובות מפורשות (`api/slots`, `api/student-links` וכו') במקום `api/[controller]`, כדי להתאים לטבלת נקודות הקצה.
+- גוף שגיאה אחיד: `record ErrorResponse(int Status, string Message)` ב-`API/Models`. גם `InvalidModelStateResponseFactory` מחזיר אותו.
+- `ToActionResult` בשתי גרסאות: עם ערך (200) ובלי ערך (204). יצירה מחזירה `CreatedAtAction` (201 + Location).
+- `[Authorize(Roles = nameof(Role.Teacher))]`: `nameof` במקום מחרוזת, כדי שטעות כתיב לא תתקמפל.
+- `JsonStringEnumConverter` נוסף ב-`AddJsonOptions`.
 
 ### T20 – Middleware `[ ]`
 - **`ExceptionMiddleware`:** תופס חריגה לא צפויה, רושם לוג **Error**, ומחזיר 500 בפורמט `{ status, message, correlationId }`, בלי stack trace.

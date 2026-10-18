@@ -1,8 +1,11 @@
 using System.Text;
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using SlotRace.API.Models;
 using SlotRace.API.Options;
 using SlotRace.Application.Common.Options;
 using SlotRace.Application.Interfaces;
@@ -16,7 +19,17 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    // enum כמחרוזת ב-JSON: "Teacher" במקום 1 (החלטה מ-T10)
+    .AddJsonOptions(o => o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()))
+    // שגיאת ולידציה של DTO ([Required] וכו') תחזור באותו מבנה כמו שאר השגיאות
+    .ConfigureApiBehaviorOptions(o => o.InvalidModelStateResponseFactory = context =>
+    {
+        var message = string.Join(" ", context.ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage));
+        return new BadRequestObjectResult(new ErrorResponse(StatusCodes.Status400BadRequest, message));
+    });
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));

@@ -43,6 +43,7 @@ builder.Services.AddSingleton(TimeProvider.System);
 
 // שירותים (לוגיקה עסקית)
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ISlotService, SlotService>();
 
 // AutoMapper: רישום ה-Profile, ו-IMapper יוזרק לשירותים
 builder.Services.AddAutoMapper(c =>

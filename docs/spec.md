@@ -275,7 +275,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `GetForParentAsync` מתחיל מ-`Users` עם `Include(Children).ThenInclude(HomeroomTeacher)` (דרישת המורה ל-ThenInclude).
 - `ITransaction` בלי `RollbackAsync`: יציאה בלי `CommitAsync` מבטלת. `EfTransaction` הוא Adapter.
 
-### T16 – `SlotService`: CRUD וביטול הזמנה `[ ]`
+### T16 – `SlotService`: CRUD וביטול הזמנה `[x]`
 `ISlotService` ו-`SlotService`. מזריק `ISlotRepository`, `IMapper`, `ILogger<SlotService>` ו-`TimeProvider` (במקום `DateTime.UtcNow`, כדי שבבדיקות אפשר "לקבוע" את השעה).
 - **Create:** רק המחנכת עצמה (`TeacherId` מגיע מה-token). כללים: הסיום אחרי ההתחלה; ההתחלה בעתיד; הזמנים ב-UTC (`DateTimeKind.Utc`), אחרת Validation; אין חפיפה עם סלוט אחר שלה (Conflict).
 - **GetPaged:** `pageSize` מוגבל ל-50. מחנכת בלי `teacherId` רואה את הסלוטים שלה. מיפוי ל-`SlotDto` + `BookedByMe` + `StudentName` לפי כללי הפרטיות.
@@ -283,6 +283,15 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **Update:** מעתיקים את הזמנים ביד (`slot.StartTimeUtc = request.StartTimeUtc!.Value`), בלי AutoMapper (החלטה מ-T11). רק בעלת הסלוט (Forbidden); סלוט תפוס לא משתנה (Conflict); אותם כללי זמנים וחפיפה.
 - **Delete:** רק בעלת הסלוט; סלוט תפוס לא נמחק (Conflict).
 - **CancelBooking:** רק ההורה שהזמינה (Forbidden); סלוט שעבר לא מתבטל (Validation); מאפסים `BookedByParentId` ו-`StudentId`; `SlotConflictException` מחזירה Conflict.
+
+**החלטות שהתקבלו ב-T16:**
+- המשתמשת (`userId`, `role`) מועברת לשירות כפרמטרים מה-Controller.
+- סדר בדיקות קבוע: קיים (404) → שלך (403) → מצב (409/400).
+- `ValidateTimes` משותפת ליצירה ולעדכון. `DateTimeKind.Utc` נדרש (Npgsql), אחרת 400.
+- `ToDto` היא המקום היחיד שבונה `SlotDto` (פרטיות). מספיק להשוות `userId` ל-`TeacherId`/`BookedByParentId`.
+- `catch (SlotConflictException)` גם ב-Update, Delete ו-CancelBooking (Version נבדק גם ב-DELETE).
+- ביצירה טוענים מחדש עם `GetDetailsAsync`, כי `slot.Teacher` הוא null אחרי שמירה עם `TeacherId` בלבד.
+- הורה רואה ברשימה סלוטים של כל המחנכות (בלי שמות ילדות). ההגבלה למחנכת של הילדה היא ב-T17.
 
 ### T17 – `BookAsync`: לב הפרויקט `[ ]`
 לפי הסדר:

@@ -325,11 +325,17 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - בסוף טוענים מחדש עם `GetDetailsAsync`, כדי שההורה תקבל את שם הילדה (כמו ב-Create).
 - עד T22 (האינדקס הייחודי) נשאר פתח רק במקרה של אבא ואמא על שני סלוטים שונים לאותה ילדה, באותה שנייה בדיוק.
 
-### T18 – `StudentService` `[ ]`
+### T18 – `StudentService` `[x]`
 - **Create** (Teacher): `HomeroomTeacherId` מגיע מה-token. `JoinCode` נוצר אוטומטית: 8 תווים, בלי תווים מבלבלים כמו 0/O או 1/I. אם הקוד כבר קיים, יוצרים חדש.
 - **GetMine:** למחנכת, התלמידות שלה עם `JoinCode` ומספר ההורים. להורה, הילדות שלה עם שם המחנכת, ובלי `JoinCode`.
 - **GetById:** רק המחנכת או הורה מקושרת (Forbidden).
 - **Link** (Parent): קוד לא קיים: NotFound. כבר מקושרת: Conflict. אחרת מוסיפים את ההורה ל-`Parents`.
+
+**החלטות שהתקבלו ב-T18:**
+- הקוד מוגרל עם `RandomNumberGenerator.GetString` (קריפטוגרפי), מתוך `ABCDEFGHJKLMNPQRSTUVWXYZ23456789`, ב-`do...while` עד שאינו תפוס.
+- `ToDto` ממלא `JoinCode` ו-`ParentsCount` רק כש-`HomeroomTeacherId == userId`.
+- בקישור: הקוד מנורמל ל-`Trim().ToUpperInvariant()`. ההורה נטענת מ-`IUserRepository` (אותו DbContext).
+- ביצירה: `Trim` על השם, וטעינה מחדש בשביל שם המחנכת.
 
 ### שלב ד – שכבת ה-API
 

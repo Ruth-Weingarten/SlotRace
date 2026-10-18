@@ -408,7 +408,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ו – בדיקות
 
-### T23 – בדיקות יחידה (xUnit ו-Moq) `[ ]`
+### T23 – בדיקות יחידה (xUnit ו-Moq) `[x]`
 פרויקט `SlotRace.Tests` (xUnit), שמפנה ל-`Application` ול-`Domain`. חבילות `Moq` ו-`Microsoft.Extensions.TimeProvider.Testing` (`FakeTimeProvider`).
 את `IUnitOfWork` ו-`ITransaction` מדמים עם Moq. בהצלחה בודקים ש-`CommitAsync` נקראה, ובדחייה בודקים שהיא **לא** נקראה.
 **על `SlotService.BookAsync`:**
@@ -420,6 +420,14 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **ה-repository זורק `SlotConflictException`: Conflict** (המקרה ה"נדחה" של המשאב המוגבל, דרישה 13).
 
 **על `AuthService`:** אימייל קיים מחזיר Conflict; קוד מורה שגוי מחזיר Validation.
+
+**החלטות שהתקבלו ב-T23 (אפשרות ב', 28 בדיקות):**
+- הפרויקט נוצר מתבנית xUnit של Visual Studio (xUnit 2.9.3). נוספו `Moq` 4.21.0 ו-`Microsoft.Extensions.TimeProvider.Testing` 10.11.0, והפניות ל-Application ול-Domain.
+- `TestHelpers`: "עכשיו" קבוע (20.10.2026 09:00 UTC) עם `FakeTimeProvider`, ו-AutoMapper **אמיתי** עם `MappingProfile` (כך נבדק גם ה-`Ignore`).
+- `AuthServiceTests` (7): כולל נרמול אימייל, hash במקום סיסמה, ואותה הודעה בשני כישלוני התחברות.
+- `SlotServiceBookTests` (8): כל שבע הבדיקות של `BookAsync`, הצלחה עם `Commit`, ו-`SlotConflictException` בלי `Commit`. מצב תקין בבנאי, ושינוי אחד בכל בדיקה.
+- `SlotServiceTests` (7): Create (עבר, לא UTC, חפיפה), Update של מחנכת אחרת, Delete של סלוט תפוס, ופרטיות שם הילדה.
+- `StudentServiceTests` (6): פרטיות `JoinCode`, הרשאה, וקישור (כולל נרמול הקוד).
 
 ### T24 – בדיקת ההוכחה: שני DbContext `[ ]`
 המורה בודקת אותה בנפרד.

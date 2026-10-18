@@ -3,4 +3,5 @@
   <Project Path="SlotRace.Application/SlotRace.Application.csproj" />
   <Project Path="SlotRace.Domain/SlotRace.Domain.csproj" />
   <Project Path="SlotRace.Infrastructure/SlotRace.Infrastructure.csproj" />
+  <Project Path="SlotRace.Tests/SlotRace.Tests.csproj" Id="06da6af2-e19b-4372-863e-ebf03daef2ae" />
 </Solution>

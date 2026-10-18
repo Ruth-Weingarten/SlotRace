@@ -31,6 +31,9 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ISlotRepository, SlotRepository>();
 
+// טרנזקציה: Scoped, כדי לקבל את אותו DbContext כמו ה-repositories
+builder.Services.AddScoped<IUnitOfWork, EfUnitOfWork>();
+
 // אבטחה: כל ממשק מ-Application מקבל את המימוש שלו מ-Infrastructure
 builder.Services.AddScoped<IPasswordHasher, BCryptPasswordHasher>();
 builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();

@@ -1,17 +1,29 @@
-﻿using SlotRace.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using SlotRace.Application.Common;
-namespace SlotRace.Application.Interfaces
-{
-    public interface ISlotRepository
-    {
+﻿using SlotRace.Application.Common;
+using SlotRace.Application.DTOs.Slots;
+using SlotRace.Domain.Entities;
 
-        Task<Slot?> GetByIdAsync(int id, CancellationToken ct);
-        Task<PagedResult<Slot>> GetPagedAsync(int? teacherId, bool onlyFree, int page, int pageSize, CancellationToken ct);
-        Task<bool> ParentHasBookingForStudentAsync(int parentId, int studentId, CancellationToken ct);
-        Task AddAsync(Slot slot, CancellationToken ct);
-        Task SaveChangesAsync(CancellationToken ct);
-    }
+namespace SlotRace.Application.Interfaces;
+
+public interface ISlotRepository
+{
+    // לשינוי: עם מעקב (בלי AsNoTracking), כדי ש-SaveChanges ו-Version יעבדו
+    Task<Slot?> GetForUpdateAsync(int id, CancellationToken ct);
+
+    // לקריאה בלבד: AsNoTracking
+    Task<Slot?> GetDetailsAsync(int id, CancellationToken ct);
+
+    // סינון, מיון ו-paging. Skip/Take בתוך השאילתה
+    Task<PagedResult<Slot>> GetPagedAsync(SlotQuery query, CancellationToken ct);
+
+    // האם הזמן החדש חופף לסלוט קיים של אותה מחנכת. בעדכון מעבירים את מזהה הסלוט עצמו
+    Task<bool> HasOverlapAsync(int teacherId, DateTime startUtc, DateTime endUtc, int? excludeSlotId, CancellationToken ct);
+
+    // "תור אחד לילדה" (לא להורה-וילדה)
+    Task<bool> StudentHasBookingAsync(int studentId, CancellationToken ct);
+
+    Task AddAsync(Slot slot, CancellationToken ct);
+    void Remove(Slot slot);
+
+    // זורק SlotConflictException כשיש התנגשות (Version או אינדקס ייחודי)
+    Task SaveChangesAsync(CancellationToken ct);
 }

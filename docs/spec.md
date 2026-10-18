@@ -237,7 +237,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ג – לוגיקה עסקית
 
-### T15 – הרחבת ה-repositories `[ ]`
+### T15 – הרחבת ה-repositories `[x]`
 **`ISlotRepository`:**
 - `GetForUpdateAsync(id)`: **עם** מעקב, בלי `AsNoTracking`.
 - `GetDetailsAsync(id)`: `AsNoTracking`, עם `Include(Teacher)` ו-`Include(Student)`.
@@ -264,6 +264,16 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **למה ממשק ולא `Database.BeginTransactionAsync` ישירות בשירות:** `Database` שייך ל-EF, ו-`Application` לא מכירה EF.
 
 **בעיית N+1:** אף שאילתה לא רצה בתוך לולאה. כל הקשרים נטענים ב-`Include` בשאילתה אחת.
+
+**החלטות שהתקבלו ב-T15:**
+- `GetByIdAsync` הוחלף ב-`GetForUpdateAsync` (עם מעקב) וב-`GetDetailsAsync` (בלי מעקב). `ParentHasBookingForStudentAsync` הוחלף ב-`StudentHasBookingAsync`.
+- `GetForUpdateAsync` כולל `Include(Teacher)` ו-`Include(Student)`, כדי להחזיר `SlotDto` אחרי שינוי.
+- `GetPagedAsync` מקבל `SlotQuery`. מיון משני לפי `Id` (`ThenBy`) לסדר יציב בין עמודים. `FromUtc`/`ToUtc` מסננים לפי `StartTimeUtc`.
+- חפיפה: `s.Start < end && start < s.End`. סלוטים צמודים מותרים.
+- `SaveChangesAsync`: `catch` של `DbUpdateConcurrencyException` **לפני** `DbUpdateException` (ירושה), ו-`when` עם `PostgresErrorCodes.UniqueViolation`.
+- `GetWithParentsAsync`, `GetByJoinCodeAsync` ו-`GetForTeacherAsync` כוללים `Include(HomeroomTeacher)` בשביל `TeacherName`.
+- `GetForParentAsync` מתחיל מ-`Users` עם `Include(Children).ThenInclude(HomeroomTeacher)` (דרישת המורה ל-ThenInclude).
+- `ITransaction` בלי `RollbackAsync`: יציאה בלי `CommitAsync` מבטלת. `EfTransaction` הוא Adapter.
 
 ### T16 – `SlotService`: CRUD וביטול הזמנה `[ ]`
 `ISlotService` ו-`SlotService`. מזריק `ISlotRepository`, `IMapper`, `ILogger<SlotService>` ו-`TimeProvider` (במקום `DateTime.UtcNow`, כדי שבבדיקות אפשר "לקבוע" את השעה).

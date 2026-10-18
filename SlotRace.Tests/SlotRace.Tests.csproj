@@ -14,12 +14,15 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
     <PackageReference Include="Moq" Version="4.21.0" />
     <PackageReference Include="Microsoft.Extensions.TimeProvider.Testing" Version="10.11.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.13" />
   </ItemGroup>
 
-  <!-- בודקים את השירותים (Application) עם Mock, בלי מסד נתונים -->
+  <!-- T23: השירותים (Application) עם Mock. T24: AppDbContext (Infrastructure) עם SQLite -->
   <ItemGroup>
     <ProjectReference Include="..\SlotRace.Application\SlotRace.Application.csproj" />
     <ProjectReference Include="..\SlotRace.Domain\SlotRace.Domain.csproj" />
+    <!-- T24: AppDbContext (Version והאינדקסים) לבדיקת ההוכחה עם מסד אמיתי -->
+    <ProjectReference Include="..\SlotRace.Infrastructure\SlotRace.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -429,7 +429,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `SlotServiceTests` (7): Create (עבר, לא UTC, חפיפה), Update של מחנכת אחרת, Delete של סלוט תפוס, ופרטיות שם הילדה.
 - `StudentServiceTests` (6): פרטיות `JoinCode`, הרשאה, וקישור (כולל נרמול הקוד).
 
-### T24 – בדיקת ההוכחה: שני DbContext `[ ]`
+### T24 – בדיקת ההוכחה: שני DbContext `[x]`
 המורה בודקת אותה בנפרד.
 - שני מופעים נפרדים של `AppDbContext` על אותו מסד נתונים.
 - שניהם טוענים את אותו סלוט, ושניהם מציבים הזמנה.
@@ -437,6 +437,12 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - השני מקבל `DbUpdateConcurrencyException` (`Assert.ThrowsAsync`).
 - בדיקה נוספת: אחרי זה במסד יש הזמנה אחת בלבד.
 - **מסד הנתונים לבדיקה:** ראו החלטה פתוחה 5. הפרויקט יפנה גם ל-`Infrastructure`.
+
+**החלטות שהתקבלו ב-T24:**
+- SQLite בזיכרון (`Microsoft.EntityFrameworkCore.Sqlite` 10.0.13), חיבור פתוח אחד לכל בדיקה, `EnsureCreated` (לא migrations, שנכתבו ל-PostgreSQL).
+- הבדיקות פונות ל-`AppDbContext` ישירות (המנגנון עצמו). התרגום ל-409 נבדק ב-T23.
+- בדיקה 1 (הדרישה): שתי הורות, אותו סלוט → `DbUpdateConcurrencyException`; במסד הזמנה אחת.
+- בדיקה 2 (תוספת): אבא ואמא, שני סלוטים, אותה ילדה → `DbUpdateException` מהאינדקס הייחודי; למירי תור אחד.
 
 ### שלב ז – סיום השרת
 
@@ -508,7 +514,7 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 
 ## החלטות פתוחות
 
-5. **מסד הנתונים לבדיקת שני ה-DbContext:** **ההמלצה: SQLite in-memory** (חבילה `Microsoft.EntityFrameworkCore.Sqlite` בפרויקט הבדיקות). הוא מהיר ולא צריך Docker, ו-concurrency token מסוג Guid עובד בו כמו ב-PostgreSQL. החלופה היא PostgreSQL אמיתי ב-Docker: נאמן יותר, אבל הבדיקה תיכשל כשהקונטיינר כבוי.
+5. ~~**מסד הנתונים לבדיקת שני ה-DbContext**~~ **נסגרה ב-T24: SQLite בזיכרון.** הנוסח הקודם: **ההמלצה: SQLite in-memory** (חבילה `Microsoft.EntityFrameworkCore.Sqlite` בפרויקט הבדיקות). הוא מהיר ולא צריך Docker, ו-concurrency token מסוג Guid עובד בו כמו ב-PostgreSQL. החלופה היא PostgreSQL אמיתי ב-Docker: נאמן יותר, אבל הבדיקה תיכשל כשהקונטיינר כבוי.
 6. ~~**גרסת AutoMapper**~~ **נסגרה ב-T11:** 16.2.0 בלי מפתח, כמו בכיתה. מגרסה 15 יש רישיון כפול, והגרסה החינמית (Community) כוללת שימוש לימודי. בלי מפתח הספרייה עובדת, ורק מופיעה הודעה בלוג.
 7. ~~**Swagger ב-.NET 10**~~ **נסגרה ב-T14:** Swashbuckle 10.3.0, פעיל גם ב-Render. הנוסח הקודם: כרגע בפרויקט יש רק `AddOpenApi` המובנה, שמייצר את המסמך אבל לא את המסך. המורה דורשת "Swagger פעיל". **ההמלצה: Swashbuckle (Swagger UI).** לבדוק בזמן ההתקנה גרסה שתואמת ל-.NET 10, כי הגדרת ה-Bearer השתנתה בין הגרסאות. בנוסף צריך להחליט אם Swagger פעיל גם ב-Render. ההמלצה: כן, כדי שאפשר יהיה לבדוק את השרת.
 8. **`/booking` ביחיד:** ההסבר נמצא בטבלת נקודות הקצה. אם המורה מקפידה על רבים בכל מקום, החלופה היא `/api/slots/{id}/bookings`.

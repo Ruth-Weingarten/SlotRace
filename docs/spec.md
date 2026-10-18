@@ -465,7 +465,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ח – קליינט והעלאה
 
-### T26 – קליינט React (repository נפרד: `SlotRace-Client`) `[ ]`
+### T26 – קליינט React (repository נפרד: `SchoolSlot-Client`) `[x]`
 React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את השרת: בכיתות הסמינר הקליינט לא נבדק (החלטה 1). `.gitignore` עם `node_modules`. כתובת השרת ב-`VITE_API_URL`.
 **ארבעה מסכים (דרישת המורה):**
 1. התחברות והרשמה: שמירת ה-JWT ושליחתו ב-header `Authorization: Bearer`.
@@ -474,6 +474,13 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 4. **הצגה ברורה של 409**: "הסלוט נתפס על ידי הורה אחרת". זה המסך היחיד שהמורה אמרה שבאמת חשוב.
 
 ואם יש זמן: מסך מחנכת ליצירת סלוטים ותלמידות, ומסך "קישור ילדה בקוד".
+
+**החלטות שהתקבלו ב-T26:**
+- ה-repository נקרא `SchoolSlot-Client` (שם המוצר), בתיקייה `hw\SchoolSlot-Client`, לצד השרת.
+- Vite + React 19 + TypeScript, בלי ספריות נוספות (בלי router; לשוניות ב-state). עברית מימין לשמאל, גופן Rubik, עיצוב בהשראת tor.digital בלי תמונות.
+- כל ארבעת המסכים, וגם מסך מחנכת (זמנים ותלמידות עם קודים) וקישור ילדה בקוד. 409 מוצג בכרטיס אדום בולט עם הודעת השרת.
+- ה-token נשמר ב-localStorage; 401 מחזיר למסך ההתחברות. זמנים נשלחים לשרת כ-UTC (`toISOString`) ומוצגים בשעון המקומי.
+- `VITE_API_URL` (ברירת מחדל `https://localhost:7256`), ו-`.env.example` לדוגמה.
 
 ### T27 – העלאה ל-Render `[ ]`
 - **שרת:** `Dockerfile` רב-שלבי בשורש ה-solution (build עם `sdk:10.0` והרצה עם `aspnet:10.0`). Web Service ב-Render מסוג Docker, מחובר ל-`SlotRace`.

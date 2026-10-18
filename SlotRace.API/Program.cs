@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using NLog.Web;
 using SlotRace.API.Middleware;
 using SlotRace.API.Models;
 using SlotRace.API.Options;
@@ -17,6 +18,10 @@ using SlotRace.Infrastructure.Repositories;
 using SlotRace.Infrastructure.Security;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// לוגים: כל ILogger בקוד (הממשק) כותב מעכשיו דרך NLog (המימוש). ההגדרות ב-nlog.config
+builder.Logging.ClearProviders();
+builder.Host.UseNLog();
 
 // Add services to the container.
 

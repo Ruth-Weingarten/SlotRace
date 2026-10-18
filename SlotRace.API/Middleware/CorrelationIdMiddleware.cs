@@ -32,8 +32,8 @@ public class CorrelationIdMiddleware
             return Task.CompletedTask;
         });
 
-        // כל שורת לוג שתיכתב בבקשה הזאת תכלול את המזהה
-        using (_logger.BeginScope(new Dictionary<string, object> { ["CorrelationId"] = id }))
+        // כל שורת לוג שתיכתב בבקשה הזאת תכלול את המזהה (NLog קורא אותו עם ${scopeproperty:item=CorrelationId})
+        using (_logger.BeginScope(new[] { new KeyValuePair<string, object>("CorrelationId", id) }))
         {
             await _next(context);
         }

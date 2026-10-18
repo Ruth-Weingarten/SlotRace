@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="6.2.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.13">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -19,6 +20,11 @@
   <ItemGroup>
     <ProjectReference Include="..\SlotRace.Application\SlotRace.Application.csproj" />
     <ProjectReference Include="..\SlotRace.Infrastructure\SlotRace.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <!-- השרת רץ מתוך bin, ולכן nlog.config צריך להיות מועתק לשם -->
+  <ItemGroup>
+    <Content Update="nlog.config" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

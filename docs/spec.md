@@ -372,12 +372,19 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 **למה Exception ראשון:** middleware עוטף את כל מה שאחריו, ולכן הראשון תופס חריגות מכולם. **למה Authentication לפני Authorization:** קודם מזהים מי המשתמשת, ורק אחר כך בודקים מה מותר לה.
 
-### T21 – NLog `[ ]`
+### T21 – NLog `[x]`
 - חבילה `NLog.Web.AspNetCore` ב-API, `builder.Host.UseNLog()` (לפי התיעוד של NLog לגרסה המותקנת).
 - `nlog.config`: שני יעדים, קובץ וקונסול. ה-CorrelationId ב-layout. התיקייה `logs/` נמצאת ב-`.gitignore`.
 - **רמות:** Debug לפיתוח; Information לבקשות וזרימה רגילה; Warning להתנגשות על סלוט; Error לחריגה.
 - **בקוד רק `ILogger<T>`.** NLog מתחבר מתחת, ולכן אפשר להחליף ספריית לוגים בלי לגעת ב-Application. זה אותו רעיון של הפרדת תלויות.
 - **לא נרשמים:** סיסמאות, tokens, גוף בקשת הרשמה.
+
+**החלטות שהתקבלו ב-T21:**
+- `NLog.Web.AspNetCore` 6.2.2 ב-API בלבד. `builder.Logging.ClearProviders()` ו-`builder.Host.UseNLog()`.
+- `nlog.config` ב-`SlotRace.API` (מועתק ל-bin עם `CopyToOutputDirectory`). יעדים: קונסול וקובץ יומי `logs/slotrace-${shortdate}.log` (7 ימים).
+- פורמט: תאריך | רמה | `${scopeproperty:item=CorrelationId}` | מחלקה | הודעה | חריגה.
+- חוקים: `Microsoft.Hosting.Lifetime` מ-Info; שאר `Microsoft.*`/`System.*` רק מ-Warning; הקוד שלנו מ-Info.
+- `BeginScope` ב-`CorrelationIdMiddleware` עבר למערך `KeyValuePair`, כמו בתיעוד של NLog.
 
 ### שלב ה – מסד נתונים מוכן להרצה
 

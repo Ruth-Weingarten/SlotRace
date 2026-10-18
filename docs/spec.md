@@ -482,7 +482,7 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 - ה-token נשמר ב-localStorage; 401 מחזיר למסך ההתחברות. זמנים נשלחים לשרת כ-UTC (`toISOString`) ומוצגים בשעון המקומי.
 - `VITE_API_URL` (ברירת מחדל `https://localhost:7256`), ו-`.env.example` לדוגמה.
 
-### T27 – העלאה ל-Render `[ ]`
+### T27 – העלאה ל-Render `[x]`
 - **שרת:** `Dockerfile` רב-שלבי בשורש ה-solution (build עם `sdk:10.0` והרצה עם `aspnet:10.0`). Web Service ב-Render מסוג Docker, מחובר ל-`SlotRace`.
 - **מסד נתונים:** PostgreSQL של Render. ה-connection string נכתב בפורמט `Host=...;Port=...;Database=...;Username=...;Password=...;SSL Mode=Require`, כי Npgsql לא קורא את פורמט ה-URL שמוצג ב-Render.
 - **משתני סביבה ב-Render:** `ConnectionStrings__Default`, `Jwt__Key`, `Registration__TeacherCode`, `Cors__AllowedOrigins__0`. הקו הכפול `__` מחליף את `:` של ההגדרות.
@@ -490,6 +490,8 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 - ה-migrations וה-seed רצים לבד בעלייה (T22).
 
 **לא בטוחה בפרטים הבאים של Render, ולבדוק בתיעוד בזמן הביצוע:** איזה פורט השרת צריך להאזין לו, ולכמה זמן מסד נתונים חינמי נשמר.
+
+**בוצע ב-18.10.2026:** שרת `https://slotrace.onrender.com` (Docker, Free, Ohio), מסד `slotrace-db` (Free, פג ב-17.11.2026), קליינט `https://schoolslot.onrender.com` (Static Site). ה-connection string הפנימי עם `SSL Mode=Prefer`. `Cors__AllowedOrigins__0` = כתובת הקליינט. נטפרי חוסם את onrender.com אצל רות; נשלחה/תישלח בקשת פתיחה.
 
 **נבדק בתיעוד של Render (T27):** הפורט מגיע במשתנה `PORT` (ברירת מחדל 10000), וה-Dockerfile קורא אותו. שרת חינמי "נרדם" אחרי 15 דקות בלי תנועה, והתעוררות לוקחת כדקה. מסד PostgreSQL חינמי פג אחרי 30 יום (ועוד 14 יום חסד).
 

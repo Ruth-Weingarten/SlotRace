@@ -118,5 +118,7 @@ NLog כותב לקונסול ולקובץ יומי `logs/slotrace-<תאריך>.l
 ## קישורים
 
 - **Swagger (מקומי):** `https://localhost:7256/swagger`
-- **השרת ב-Render:** _יתווסף_
-- **הקליינט (React):** _יתווסף_
+- **Swagger בשרת שב-Render:** https://slotrace.onrender.com/swagger
+- **הקליינט SchoolSlot (React):** https://schoolslot.onrender.com · קוד: https://github.com/Ruth-Weingarten/SchoolSlot-Client
+
+> השרת בתוכנית החינמית של Render "נרדם" אחרי 15 דקות בלי שימוש, ולכן הבקשה הראשונה אחרי הפסקה עלולה לקחת עד דקה.

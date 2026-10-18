@@ -293,7 +293,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - ביצירה טוענים מחדש עם `GetDetailsAsync`, כי `slot.Teacher` הוא null אחרי שמירה עם `TeacherId` בלבד.
 - הורה רואה ברשימה סלוטים של כל המחנכות (בלי שמות ילדות). ההגבלה למחנכת של הילדה היא ב-T17.
 
-### T17 – `BookAsync`: לב הפרויקט `[ ]`
+### T17 – `BookAsync`: לב הפרויקט `[x]`
 לפי הסדר:
 0. `await using var tx = await _unitOfWork.BeginTransactionAsync(ct);`. מכאן כל הבדיקות והשמירה נמצאות באותה טרנזקציה.
 1. טעינת הסלוט **עם מעקב** (`GetForUpdateAsync`). לא נמצא: NotFound.
@@ -318,6 +318,12 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - **האינדקס הייחודי** (T22) הוא מה שעוצר את אבא ואמא על שני סלוטים שונים לאותה ילדה.
 
 שלושת המנגנונים יחד: הטרנזקציה נותנת שלמות, ו-`Version` והאינדקס מזהים את ההתנגשות. זה מה שנכתוב ב-README.
+
+**החלטות שהתקבלו ב-T17:**
+- `BookAsync` נמצא ב-`SlotService`, שמקבל עכשיו גם `IStudentRepository` ו-`IUnitOfWork`.
+- `try` עוטף גם את `SaveChangesAsync` וגם את `CommitAsync`. כישלון בשמירה מדלג על ה-Commit, והטרנזקציה מתבטלת.
+- בסוף טוענים מחדש עם `GetDetailsAsync`, כדי שההורה תקבל את שם הילדה (כמו ב-Create).
+- עד T22 (האינדקס הייחודי) נשאר פתח רק במקרה של אבא ואמא על שני סלוטים שונים לאותה ילדה, באותה שנייה בדיוק.
 
 ### T18 – `StudentService` `[ ]`
 - **Create** (Teacher): `HomeroomTeacherId` מגיע מה-token. `JoinCode` נוצר אוטומטית: 8 תווים, בלי תווים מבלבלים כמו 0/O או 1/I. אם הקוד כבר קיים, יוצרים חדש.

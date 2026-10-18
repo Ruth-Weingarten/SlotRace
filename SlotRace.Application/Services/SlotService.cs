@@ -15,13 +15,23 @@ public class SlotService : ISlotService
     private const int MaxPageSize = 50;
 
     private readonly ISlotRepository _slots;
+    private readonly IStudentRepository _students;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly TimeProvider _timeProvider;   // במקום DateTime.UtcNow, כדי שבבדיקות אפשר "לקבוע" את השעה
     private readonly ILogger<SlotService> _logger;
 
-    public SlotService(ISlotRepository slots, IMapper mapper, TimeProvider timeProvider, ILogger<SlotService> logger)
+    public SlotService(
+        ISlotRepository slots,
+        IStudentRepository students,
+        IUnitOfWork unitOfWork,
+        IMapper mapper,
+        TimeProvider timeProvider,
+        ILogger<SlotService> logger)
     {
         _slots = slots;
+        _students = students;
+        _unitOfWork = unitOfWork;
         _mapper = mapper;
         _timeProvider = timeProvider;
         _logger = logger;
@@ -178,6 +188,69 @@ public class SlotService : ISlotService
 
         _logger.LogInformation("Booking on slot {SlotId} cancelled by parent {ParentId}", id, parentId);
         return ServiceResult.Ok();
+    }
+
+    // ---------- T17: הזמנה ----------
+    // שלושה מנגנונים: הטרנזקציה (הכול או כלום), Version (שתי הורות על אותו סלוט),
+    // ואינדקס ייחודי על StudentId (אבא ואמא על שני סלוטים לאותה ילדה, ב-T22)
+    public async Task<ServiceResult<SlotDto>> BookAsync(int slotId, BookSlotRequest request, int parentId, CancellationToken ct)
+    {
+        // await using: בסוף, אם לא היה Commit, הטרנזקציה מתבטלת לבד
+        await using var tx = await _unitOfWork.BeginTransactionAsync(ct);
+
+        // 1. הסלוט קיים? (עם מעקב, כי נשנה אותו. בלי זה Version לא עובד)
+        var slot = await _slots.GetForUpdateAsync(slotId, ct);
+        if (slot is null)
+            return ServiceResult<SlotDto>.Fail(ErrorType.NotFound, "הסלוט לא נמצא.");
+
+        // 2. הילדה קיימת?
+        var student = await _students.GetWithParentsAsync(request.StudentId, ct);
+        if (student is null)
+            return ServiceResult<SlotDto>.Fail(ErrorType.NotFound, "התלמידה לא נמצאה.");
+
+        // 3. ההורה המחוברת היא הורה של הילדה?
+        if (!student.Parents.Any(p => p.Id == parentId))
+            return ServiceResult<SlotDto>.Fail(ErrorType.Forbidden, "אפשר להזמין רק עבור ילדה שלך.");
+
+        // 4. הסלוט שייך למחנכת של הילדה?
+        if (slot.TeacherId != student.HomeroomTeacherId)
+            return ServiceResult<SlotDto>.Fail(ErrorType.Forbidden, "אפשר להזמין רק אצל המחנכת של הילדה.");
+
+        // 5. הסלוט עוד לא עבר?
+        if (slot.StartTimeUtc <= _timeProvider.GetUtcNow().UtcDateTime)
+            return ServiceResult<SlotDto>.Fail(ErrorType.Validation, "הסלוט כבר עבר.");
+
+        // 6. הסלוט פנוי? (שתי הורות באותו רגע יעברו את הבדיקה הזאת שתיהן. Version יעצור את השנייה בשמירה)
+        if (slot.BookedByParentId is not null)
+            return ServiceResult<SlotDto>.Fail(ErrorType.Conflict, "הסלוט כבר תפוס.");
+
+        // 7. לילדה אין כבר תור? (תור אחד לילדה, גם אם ההורה השנייה הזמינה)
+        if (await _slots.StudentHasBookingAsync(student.Id, ct))
+            return ServiceResult<SlotDto>.Fail(ErrorType.Conflict, "לילדה כבר יש תור.");
+
+        // 8. מסמנים את הסלוט כתפוס
+        slot.BookedByParentId = parentId;
+        slot.StudentId = student.Id;
+
+        // 9. שומרים ומאשרים: UPDATE ... WHERE Id=@id AND Version=@old
+        try
+        {
+            await _slots.SaveChangesAsync(ct);
+            await tx.CommitAsync(ct);
+        }
+        catch (SlotConflictException)
+        {
+            // Warning ולא Error: זה לא באג, זה מצב צפוי של תחרות
+            _logger.LogWarning("Booking conflict on slot {SlotId} by parent {ParentId}", slotId, parentId);
+            return ServiceResult<SlotDto>.Fail(ErrorType.Conflict, "הסלוט נתפס על ידי הורה אחרת. נסי סלוט אחר.");
+        }
+
+        _logger.LogInformation("Slot {SlotId} booked by parent {ParentId} for student {StudentId}",
+            slotId, parentId, student.Id);
+
+        // 10. הצבנו רק StudentId (מספר), ולכן slot.Student הוא null. טוענים מחדש, כמו ב-Create
+        var booked = await _slots.GetDetailsAsync(slotId, ct);
+        return ServiceResult<SlotDto>.Ok(ToDto(booked!, parentId));
     }
 
     // ---------- פונקציות עזר ----------

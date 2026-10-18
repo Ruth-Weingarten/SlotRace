@@ -17,5 +17,6 @@ public interface ISlotService
     Task<ServiceResult> DeleteAsync(int id, int teacherId, CancellationToken ct);
     Task<ServiceResult> CancelBookingAsync(int id, int parentId, CancellationToken ct);
 
-    // BookAsync יתווסף ב-T17
+    // לב הפרויקט: הזמנה בתוך טרנזקציה, עם מניעת הזמנה כפולה (Version)
+    Task<ServiceResult<SlotDto>> BookAsync(int slotId, BookSlotRequest request, int parentId, CancellationToken ct);
 }

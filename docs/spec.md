@@ -220,12 +220,20 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - מקרה קצה ידוע: שתי הרשמות במקביל עם אותו אימייל. האינדקס הייחודי מונע כפילות, והשנייה מחזירה 500 (לא 409). הוחלט להשאיר כך.
 - לא נוספו חוקים מעבר לאפיון. הרחבות אפשריות לכיתה: נעילה אחרי ניסיונות כושלים, אישור אימייל, refresh token.
 
-### T14 – אימות, הרשאות, Swagger ו-CORS ב-`Program.cs` `[ ]`
+### T14 – אימות, הרשאות, Swagger ו-CORS ב-`Program.cs` `[x]`
 - `AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(...)` עם `TokenValidationParameters`: Issuer, Audience, Key, Lifetime. חבילה `Microsoft.AspNetCore.Authentication.JwtBearer` ב-API.
 - `AddAuthorization()`.
 - **Swagger UI עם כפתור Authorize ל-Bearer** (ראו החלטה פתוחה 7).
 - **CORS** לפי `CorsOptions`, כדי שהקליינט יוכל לפנות לשרת.
 - `API/Extensions/ClaimsPrincipalExtensions`: `GetUserId()` ו-`GetRole()`. **המשתמשת הנוכחית נקראת תמיד מה-claims של ה-token**, אף פעם לא מגוף הבקשה.
+
+**החלטות שהתקבלו ב-T14:**
+- `Swashbuckle.AspNetCore` 10.3.0 ו-`Microsoft.AspNetCore.Authentication.JwtBearer` 10.0.13. בגרסה 10 של Swashbuckle, `AddSecurityRequirement` מקבל פונקציה עם `document` ו-`OpenApiSecuritySchemeReference` (שונה מהכיתה, 6.6.2).
+- `AddOpenApi`/`MapOpenApi` מהתבנית **הוסרו**, וגם החבילה `Microsoft.AspNetCore.OpenApi`. מקור אחד ל-Swagger, כמו ב-Clinic.
+- **Swagger פעיל גם ב-Production** בכוונה: פרויקט לימודי, כדי שהמורה ורות יוכלו לבדוק את השרת ב-Render. כל נקודת קצה עדיין דורשת token.
+- השרת לא עולה אם `Jwt:Key` חסר או קצר מ-32 תווים (בדיקה בעלייה).
+- `ClockSkew` דקה אחת (ברירת המחדל: 5 דקות).
+- נוסף `UseAuthentication()` לפני `UseAuthorization()` (בתבנית היה חסר).
 
 ### שלב ג – לוגיקה עסקית
 
@@ -437,7 +445,7 @@ React עם Vite. ייכתב בעזרת AI, במינימום שמדגים את ה
 
 5. **מסד הנתונים לבדיקת שני ה-DbContext:** **ההמלצה: SQLite in-memory** (חבילה `Microsoft.EntityFrameworkCore.Sqlite` בפרויקט הבדיקות). הוא מהיר ולא צריך Docker, ו-concurrency token מסוג Guid עובד בו כמו ב-PostgreSQL. החלופה היא PostgreSQL אמיתי ב-Docker: נאמן יותר, אבל הבדיקה תיכשל כשהקונטיינר כבוי.
 6. ~~**גרסת AutoMapper**~~ **נסגרה ב-T11:** 16.2.0 בלי מפתח, כמו בכיתה. מגרסה 15 יש רישיון כפול, והגרסה החינמית (Community) כוללת שימוש לימודי. בלי מפתח הספרייה עובדת, ורק מופיעה הודעה בלוג.
-7. **Swagger ב-.NET 10:** כרגע בפרויקט יש רק `AddOpenApi` המובנה, שמייצר את המסמך אבל לא את המסך. המורה דורשת "Swagger פעיל". **ההמלצה: Swashbuckle (Swagger UI).** לבדוק בזמן ההתקנה גרסה שתואמת ל-.NET 10, כי הגדרת ה-Bearer השתנתה בין הגרסאות. בנוסף צריך להחליט אם Swagger פעיל גם ב-Render. ההמלצה: כן, כדי שאפשר יהיה לבדוק את השרת.
+7. ~~**Swagger ב-.NET 10**~~ **נסגרה ב-T14:** Swashbuckle 10.3.0, פעיל גם ב-Render. הנוסח הקודם: כרגע בפרויקט יש רק `AddOpenApi` המובנה, שמייצר את המסמך אבל לא את המסך. המורה דורשת "Swagger פעיל". **ההמלצה: Swashbuckle (Swagger UI).** לבדוק בזמן ההתקנה גרסה שתואמת ל-.NET 10, כי הגדרת ה-Bearer השתנתה בין הגרסאות. בנוסף צריך להחליט אם Swagger פעיל גם ב-Render. ההמלצה: כן, כדי שאפשר יהיה לבדוק את השרת.
 8. **`/booking` ביחיד:** ההסבר נמצא בטבלת נקודות הקצה. אם המורה מקפידה על רבים בכל מקום, החלופה היא `/api/slots/{id}/bookings`.
 9. **תאריך ההגשה החדש:** לא ידוע.
 

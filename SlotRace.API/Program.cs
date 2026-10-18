@@ -132,6 +132,17 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+// מיגרציות ונתוני דוגמה בעליית השרת.
+// בעלייה אין בקשת HTTP, ולכן אין scope: יוצרים אחד ידנית בשביל ה-DbContext (Scoped)
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DbSeeder.SeedAsync(
+        services.GetRequiredService<AppDbContext>(),
+        services.GetRequiredService<IPasswordHasher>(),
+        services.GetRequiredService<TimeProvider>());
+}
+
 // Configure the HTTP request pipeline.
 
 // Swagger פעיל גם ב-Production בכוונה: פרויקט לימודי, כדי שאפשר יהיה לבדוק את השרת ב-Render.

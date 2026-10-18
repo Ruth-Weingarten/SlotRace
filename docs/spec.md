@@ -375,7 +375,7 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 
 ### שלב ה – מסד נתונים מוכן להרצה
 
-### T22 – migration שני ו-Seeder `[ ]`
+### T22 – migration שני ו-Seeder `[x]`
 - **migration `AddBookingIndexes`:**
   - אינדקס **ייחודי חלקי** על `Slots.StudentId` עם `HasFilter("\"StudentId\" IS NOT NULL")`. כך מסד הנתונים עצמו אוסר שני תורים לאותה ילדה. זה מגן על "המשפט השני" גם כשאבא ואמא מזמינים באותו רגע.
   - אינדקס על `(TeacherId, StartTimeUtc)` לשאילתת הרשימה ולבדיקת החפיפה.
@@ -386,6 +386,12 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
   - כ-12 סלוטים עתידיים.
   - ה-hash של הסיסמאות מחושב בזמן ריצה דרך `IPasswordHasher`.
 - **קריטריון סיום:** מוחקים את מסד הנתונים, מריצים את ה-API, והכול עולה בלי שום פקודה ידנית (דרישת המורה).
+
+**החלטות שהתקבלו ב-T22:**
+- migration `AddBookingIndexes`: מחליף את אינדקסי ה-FK האוטומטיים על `StudentId` ו-`TeacherId` באינדקס ייחודי חלקי ובאינדקס משולב.
+- `DbSeeder` הוא static עם פרמטרים מפורשים (`AppDbContext`, `IPasswordHasher`, `TimeProvider`). נקרא ב-`Program.cs` בתוך `CreateScope()`.
+- נתוני דוגמה: סיסמה `Password123!` לכולם. מחנכות: שרה (`sara@slotrace.test`), רבקה (`rivka@...`). הורים: לאה ודוד (שניהם הורים של מירי), רחל. תלמידות וקודים: מירי `SARA2345`, נועה `RVKA2345`, חני `SARA6789`, תמר `RVKA6789` (בלי הורים). 6 סלוטים לכל מחנכת מחר מ-14:00 UTC; הראשון של שרה מוזמן ע"י רחל עבור חני.
+- `Add-Migration` רץ עם Default project = `SlotRace.Infrastructure` ו-Startup project = `SlotRace.API`.
 
 ### שלב ו – בדיקות
 

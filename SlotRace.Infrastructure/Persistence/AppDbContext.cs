@@ -41,6 +41,16 @@ public class AppDbContext : DbContext
         {
             e.Property(s => s.Version).IsConcurrencyToken();
 
+            // אינדקס ייחודי חלקי: ילדה יכולה להופיע רק בסלוט אחד (תור אחד לילדה).
+            // המסד אוכף את זה ברגע השמירה, גם כשאבא ואמא מזמינים סלוטים שונים באותה שנייה.
+            // הפילטר: החוק חל רק על סלוטים תפוסים (StudentId לא null)
+            e.HasIndex(s => s.StudentId)
+             .IsUnique()
+             .HasFilter("\"StudentId\" IS NOT NULL");
+
+            // אינדקס רגיל (מאיץ): הרשימה ובדיקת החפיפה מחפשות לפי מחנכת ושעה
+            e.HasIndex(s => new { s.TeacherId, s.StartTimeUtc });
+
             e.HasOne(s => s.Teacher)
              .WithMany(u => u.Slots)
              .HasForeignKey(s => s.TeacherId)

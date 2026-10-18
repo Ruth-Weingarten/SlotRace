@@ -53,9 +53,11 @@ namespace SlotRace.Infrastructure.Migrations
 
                     b.HasIndex("BookedByParentId");
 
-                    b.HasIndex("StudentId");
+                    b.HasIndex("StudentId")
+                        .IsUnique()
+                        .HasFilter("\"StudentId\" IS NOT NULL");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("TeacherId", "StartTimeUtc");
 
                     b.ToTable("Slots");
                 });

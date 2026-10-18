@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using SlotRace.API.Middleware;
 using SlotRace.API.Models;
 using SlotRace.API.Options;
 using SlotRace.Application.Common.Options;
@@ -144,6 +145,11 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
+
+// הסדר חשוב: middleware עוטף את כל מה שאחריו
+app.UseMiddleware<ExceptionMiddleware>();        // 1. רשת ביטחון: עוטפת הכול
+app.UseMiddleware<CorrelationIdMiddleware>();    // 2. מזהה לבקשה
+app.UseMiddleware<RequestLoggingMiddleware>();   // 3. שורת לוג (כבר עם המזהה)
 
 // Swagger פעיל גם ב-Production בכוונה: פרויקט לימודי, כדי שאפשר יהיה לבדוק את השרת ב-Render.
 // כל נקודת קצה עדיין דורשת token

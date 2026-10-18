@@ -358,12 +358,18 @@ Solution, ישויות, `AppDbContext`, מסד נתונים ו-migration `Init`,
 - `[Authorize(Roles = nameof(Role.Teacher))]`: `nameof` במקום מחרוזת, כדי שטעות כתיב לא תתקמפל.
 - `JsonStringEnumConverter` נוסף ב-`AddJsonOptions`.
 
-### T20 – Middleware `[ ]`
+### T20 – Middleware `[x]`
 - **`ExceptionMiddleware`:** תופס חריגה לא צפויה, רושם לוג **Error**, ומחזיר 500 בפורמט `{ status, message, correlationId }`, בלי stack trace.
 - **`CorrelationIdMiddleware`:** קורא את `X-Correlation-Id` מהבקשה, או יוצר חדש. שומר אותו ב-`HttpContext.Items`, מחזיר אותו ב-header של התשובה, ופותח `logger.BeginScope` כדי שהמזהה יופיע בכל שורת לוג של הבקשה.
 - **`RequestLoggingMiddleware`:** לוג **Information** לכל בקשה: method, path, status, משך זמן. בלי גוף הבקשה.
 
 **הסדר ב-pipeline:** Exception → CorrelationId → RequestLogging → Swagger → HTTPS → CORS → Authentication → Authorization → MapControllers.
+**החלטות שהתקבלו ב-T20:**
+- שלושת ה-middleware ב-`SlotRace.API/Middleware`. `ErrorResponse` קיבל שדה אופציונלי `CorrelationId` (מתמלא רק ב-500).
+- מזהה מהקליינט מתקבל רק אם אינו ריק ועד 64 תווים; אחרת נוצר Guid חדש.
+- הכותרת `X-Correlation-Id` נוספת ב-`Response.OnStarting`. `ExceptionMiddleware` קורא את המזהה מ-`HttpContext.Items` וכותב אותו בהודעת הלוג (ה-scope כבר נסגר כשהחריגה מגיעה אליו).
+- `RequestLoggingMiddleware` רושם method, path, status וזמן. בבקשה שנכשלה בחריגה אין שורה שלו; `ExceptionMiddleware` רושם Error.
+
 **למה Exception ראשון:** middleware עוטף את כל מה שאחריו, ולכן הראשון תופס חריגות מכולם. **למה Authentication לפני Authorization:** קודם מזהים מי המשתמשת, ורק אחר כך בודקים מה מותר לה.
 
 ### T21 – NLog `[ ]`

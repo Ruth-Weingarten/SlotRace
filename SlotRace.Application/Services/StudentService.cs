@@ -82,7 +82,7 @@ public class StudentService : IStudentService
             return ServiceResult<StudentDto>.Fail(ErrorType.NotFound, "קוד ההצטרפות לא נמצא.");
 
         if (student.Parents.Any(p => p.Id == parentId))
-            return ServiceResult<StudentDto>.Fail(ErrorType.Conflict, "את כבר מקושרת לתלמידה הזאת.");
+            return ServiceResult<StudentDto>.Fail(ErrorType.Conflict, "החשבון הזה כבר מקושר לתלמידה הזאת.");
 
         // Parents היא List<User>, ולכן צריך את האובייקט של ההורה ולא רק את המספר.
         // אותו DbContext (Scoped) כמו של StudentRepository, ולכן SaveChanges אחד שומר הכול
